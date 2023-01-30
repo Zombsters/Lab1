@@ -24,6 +24,7 @@
     <ProjectGuid>{6cf59300-5855-42ee-83a5-553f707e0894}</ProjectGuid>
     <RootNamespace>Lab1wordSearch</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>Lab1</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -136,6 +137,7 @@
     <Text Include="input1.txt" />
     <Text Include="input2.txt" />
     <Text Include="input3.txt" />
+    <Text Include="output1.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArgumentManager.h" />

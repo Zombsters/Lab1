@@ -1,1 +1,2 @@
 C:\Users\Ancir\Downloads\University of Houston\cosc 2436\labs\Lab1wordSearch\x64\Debug\Lab1wordSearch.exe
+C:\Users\Ancir\Downloads\UH Spring 23\Data Structures\Labs\lab1\Lab1wordSearch\x64\Debug\Lab1.exe
