@@ -3,9 +3,9 @@
 #include<string>
 using namespace std;
 
-void findFirstLetter(char** newspaper, string wordToFind, int numRows, int numCols); //nested loop
+bool findFirstLetter(char** newspaper, string wordToFind,int& firstRow,int& firstCol, int numRows, int numCols); //nested loop
 
-void findNextLetter(char** newspaper, string wordToFind, int numRows, int numCols, char& letterToFind, int& rowFoundAt,int& colFoundAt, int& index);
+bool findNextLetter(char** newspaper, string wordToFind, int numRows, int numCols, char& letterToFind, int& rowFoundAt, int& colFoundAt, int& index);
 
 bool checkRight(char** newspaper, string wordToFind, int numRows, int numCols, char& letterToFind, int& rowFoundAt, int& colFoundAt, int& index);
 bool checkLeft(char** newspaper, string wordToFind, int numRows, int numCols, char& letterToFind, int& rowFoundAt, int& colFoundAt, int& index);
@@ -15,7 +15,8 @@ bool checkDown(char** newspaper, string wordToFind, int numRows, int numCols, ch
 int main() {
 	int numRows, numCols;
 
-	ifstream fin("input1.txt");
+	ifstream fin("input3.txt");
+	ofstream fout("output1.txt");
 	fin >> numRows; fin >> numCols;
 
 	//create array to hold characters
@@ -35,7 +36,7 @@ int main() {
 	//display values
 	for (int row = 0; row < numRows;row++) {
 		for (int col = 0; col < numCols; col++) {
-			cout << newspaper[row][col] << " "; 
+			cout << newspaper[row][col] << " ";
 		}
 		cout << endl;
 	}
@@ -45,8 +46,14 @@ int main() {
 	//now... solve problem! //create funciton to find first letter->array auto passed by reference -- boolean to determine if found...
 
 	//findFirstLetter
-	findFirstLetter(newspaper, wordToFind, numRows, numCols);
-	
+	bool foundWord; int firstRow = 0; int firstCol = 0;
+	foundWord = findFirstLetter(newspaper, wordToFind,firstRow,firstCol, numRows, numCols);
+	if (foundWord) {
+		fout << "true";
+	}
+	else {
+		fout << "false";
+	}
 
 	fin.close();
 
@@ -54,32 +61,40 @@ int main() {
 	return 0;
 }
 
-void findFirstLetter(char** newspaper, string wordToFind, int numRows, int numCols) {
+bool findFirstLetter(char** newspaper, string wordToFind,int& firstRow,int& firstCol, int numRows, int numCols) {
 	int index = 0;
-	char letterToFind = wordToFind.at(index);
+	char letterToFind = wordToFind.at(0);
 	int rowFoundAt = 0; int colFoundAt = 0;
 
-	for (int row = 0; row < numRows;row++) {
-		for (int col = 0; col < numCols; col++) {
-
-			if (letterToFind == newspaper[row][col]) {
-				cout << "Found First Letter " << letterToFind << " at row " << row << " and column " << col << endl;
+	for(int firstRow = 0; firstRow < numRows; firstRow++){
+		for(int firstCol = 0; firstCol < numCols;firstCol++){
+			letterToFind = wordToFind.at(0); index = 0;
+			if (letterToFind == newspaper[firstRow][firstCol]) {
+				cout << "Found First Letter " << letterToFind << " at row " << firstRow << " and column " << firstCol << endl;
+				rowFoundAt = firstRow; colFoundAt = firstCol;
 				letterToFind = wordToFind.at(++index);
-				rowFoundAt = row; colFoundAt = col;
-				break;
-			}
+				cout << "Next Letter to find is " << letterToFind << endl;
+				bool isFound;
+				isFound = findNextLetter(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index);
+				if (isFound == true) {
+					return true;
+				}
 
+			}
 		}
 	}
-	cout << "Next Letter to find is " << letterToFind << endl;
-
-	findNextLetter(newspaper, wordToFind, numRows, numCols, letterToFind,rowFoundAt,colFoundAt, index);
+	return false;
 }
 
-void findNextLetter(char** newspaper, string wordToFind, int numRows, int numCols, char& letterToFind, int& rowFoundAt, int& colFoundAt, int& index)
+bool findNextLetter(char** newspaper, string wordToFind, int numRows, int numCols, char& letterToFind, int& rowFoundAt, int& colFoundAt, int& index)
 {
+	if (letterToFind == wordToFind.at(wordToFind.size() - 1)) {
+		cout << "Found " << wordToFind << "! Last Letter was " << letterToFind << " at row " << rowFoundAt << " and column " << colFoundAt << endl;
+		return true;
+	}
 
-	cout << "In findNextLetter Function... " << endl; 
+
+	cout << "In findNextLetter Function... " << endl;
 	bool found = false; // letter not found yet...
 
 	//handle left column
@@ -88,15 +103,15 @@ void findNextLetter(char** newspaper, string wordToFind, int numRows, int numCol
 			found = checkUp(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index);
 		}
 		if (rowFoundAt != (numRows - 1) && found == false) { //left but not bottom
-			found = checkDown(newspaper, wordToFind,numRows, numCols, letterToFind, rowFoundAt, colFoundAt,index);
+			found = checkDown(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index);
 		}
 		if (found == false) {
 			found = checkRight(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index); //left side can always check right
 		}
 	}
-	
+
 	//handle right column
-	if (colFoundAt == (numCols - 1) && found == false) {
+	else if (colFoundAt == (numCols - 1) && found == false) {
 		if (rowFoundAt != 0 && found == false) { //right but not top
 			found = checkUp(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index);
 		}
@@ -107,9 +122,9 @@ void findNextLetter(char** newspaper, string wordToFind, int numRows, int numCol
 			found = checkLeft(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index); //right side can always check left
 		}
 	}
-	
+
 	//handle top row
-	if (rowFoundAt == 0 && found == false) {
+	else if (rowFoundAt == 0 && found == false) {
 		if (colFoundAt != 0 && found == false) { //top but not left
 			found = checkLeft(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index);
 		}
@@ -122,7 +137,7 @@ void findNextLetter(char** newspaper, string wordToFind, int numRows, int numCol
 	}
 
 	//handle bottom row
-	if (rowFoundAt == (numRows - 1) && found == false) {
+	else if (rowFoundAt == (numRows - 1) && found == false) {
 		if (colFoundAt != 0 && found == false) { //bottom but not left
 			found = checkLeft(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index);
 		}
@@ -135,40 +150,43 @@ void findNextLetter(char** newspaper, string wordToFind, int numRows, int numCol
 	}
 
 	else {
-		found == checkLeft(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index);
 		if (found == false) {
-			found == checkRight(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index);
+			found = checkLeft(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index);
 		}
 		if (found == false) {
-			found == checkUp(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index);
+			found = checkRight(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index);
 		}
-		if (found == false){
-			found == checkDown(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index);
-			}
+		if (found == false) {
+			found = checkUp(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index);
+		}
+		if (found == false) {
+			found = checkDown(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index);
+		}
 	}
 
-	if (letterToFind == wordToFind.at(wordToFind.size() - 1)) {
-		cout << "Found " << wordToFind << "! Last Letter was " << letterToFind << " at row " << rowFoundAt << " and column " << colFoundAt << endl;
-		return;
+	if (found == false) {
+		cout << "letter " << letterToFind << " from " << wordToFind << " not found!" << endl;
+		return false;
 	}
-
-	cout << "Unable to find word... " << " last letter found from " << wordToFind << " was " << letterToFind << " at row " << rowFoundAt << " and column " << colFoundAt << endl;
- }
+	else {
+		cout << "findNextLetter iteration done" << endl;
+		letterToFind = wordToFind.at(++index);
+		return findNextLetter(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index);
+	}
+}
 
 
 
 bool checkRight(char** newspaper, string wordToFind, int numRows, int numCols, char& letterToFind, int& rowFoundAt, int& colFoundAt, int& index) {
 	cout << "Checking right...  " << endl;
-	
+
 
 	if (letterToFind == newspaper[rowFoundAt][colFoundAt + 1])
 	{
-		colFoundAt++; 
+		colFoundAt++;
 		cout << "Found " << letterToFind << " at row " << rowFoundAt << " and col " << colFoundAt << endl;
-		if (letterToFind != wordToFind.at(wordToFind.size() - 1) ) {
-			letterToFind = wordToFind.at(++index);
-		}
-		findNextLetter(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index);
+
+
 		return true;
 	}
 
@@ -177,16 +195,12 @@ bool checkRight(char** newspaper, string wordToFind, int numRows, int numCols, c
 
 bool checkLeft(char** newspaper, string wordToFind, int numRows, int numCols, char& letterToFind, int& rowFoundAt, int& colFoundAt, int& index) {
 	cout << "Checking left... " << endl;
-	
+
 	if (letterToFind == newspaper[rowFoundAt][colFoundAt - 1])
 	{
-		colFoundAt--; 
+		colFoundAt--;
 		cout << "Found " << letterToFind << " at row " << rowFoundAt << " and col " << colFoundAt << endl;
 
-		if (letterToFind != wordToFind.at(wordToFind.size() - 1) ) {
-			letterToFind = wordToFind.at(++index);
-		}
-		findNextLetter(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index);
 		return true;
 	}
 
@@ -195,15 +209,12 @@ bool checkLeft(char** newspaper, string wordToFind, int numRows, int numCols, ch
 
 bool checkUp(char** newspaper, string wordToFind, int numRows, int numCols, char& letterToFind, int& rowFoundAt, int& colFoundAt, int& index) {
 	cout << "Checking up... " << endl;
-	if (letterToFind == newspaper[rowFoundAt + 1][colFoundAt])
+	if (letterToFind == newspaper[rowFoundAt - 1][colFoundAt])
 	{
-		rowFoundAt++;
+		rowFoundAt--;
 		cout << "Found " << letterToFind << " at row " << rowFoundAt << " and col " << colFoundAt << endl;
 
-		if (letterToFind != wordToFind.at(wordToFind.size()) - 1) {
-			letterToFind = wordToFind.at(++index);
-		}
-		findNextLetter(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index);
+		
 		return true;
 	}
 
@@ -212,15 +223,12 @@ bool checkUp(char** newspaper, string wordToFind, int numRows, int numCols, char
 
 bool checkDown(char** newspaper, string wordToFind, int numRows, int numCols, char& letterToFind, int& rowFoundAt, int& colFoundAt, int& index) {
 	cout << "Checking down... " << endl;
-	if (letterToFind == newspaper[rowFoundAt - 1][colFoundAt])
+	if (letterToFind == newspaper[rowFoundAt + 1][colFoundAt])
 	{
-		rowFoundAt--;
+		rowFoundAt++;
 		cout << "Found " << letterToFind << " at row " << rowFoundAt << " and col " << colFoundAt << endl;
-		
-		if (letterToFind != wordToFind.at(wordToFind.size() - 1)) {
-			letterToFind = wordToFind.at(++index);
-		}
-		findNextLetter(newspaper, wordToFind, numRows, numCols, letterToFind, rowFoundAt, colFoundAt, index);
+
+
 		return true;
 	}
 
